@@ -370,6 +370,41 @@ html, body {
 .btn-sm.delete { color: #ff6b6b; }
 .btn-sm:active { background: rgba(255,255,255,0.2); }
 
+/* ── Backup section ── */
+.backup-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.backup-section h3 {
+  font-size: 15px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-backup {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-backup:active { background: rgba(255,255,255,0.15); }
+.btn-backup.restore { border-color: var(--accent); }
+
 /* ── Toast ── */
 .toast {
   position: fixed;

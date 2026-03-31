@@ -53,6 +53,16 @@
           <button class="btn-add" id="btn-save-card" disabled onclick="addCard()">Thêm thẻ</button>
         </div>
 
+        <!-- Backup/Restore -->
+        <div class="backup-section">
+          <h3>💾 Sao lưu / Khôi phục</h3>
+          <div class="backup-buttons">
+            <button class="btn-backup" onclick="backupData()">📤 Sao lưu</button>
+            <button class="btn-backup restore" onclick="triggerRestore()">📥 Khôi phục</button>
+            <input type="file" id="restore-input" accept=".json" onchange="restoreData(event)" style="display:none">
+          </div>
+        </div>
+
         <!-- Card list -->
         <h3 style="margin-bottom:12px;font-size:15px;color:var(--text-dim)">Danh sách thẻ</h3>
         <div class="card-list" id="card-list"></div>

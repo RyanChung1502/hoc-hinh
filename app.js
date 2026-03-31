@@ -335,6 +335,77 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
+/* ── Backup ── */
+function backupData() {
+  if (cards.length === 0) {
+    showToast('Chưa có thẻ để sao lưu');
+    return;
+  }
+  const data = JSON.stringify(cards, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hoc-hinh-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Đã sao lưu ' + cards.length + ' thẻ');
+}
+
+function triggerRestore() {
+  $('#restore-input').click();
+}
+
+async function restoreData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const imported = JSON.parse(text);
+
+    if (!Array.isArray(imported) || imported.length === 0) {
+      showToast('File không hợp lệ');
+      return;
+    }
+
+    // Validate structure
+    const valid = imported.every(c => c.text && c.image);
+    if (!valid) {
+      showToast('File không đúng định dạng');
+      return;
+    }
+
+    if (!confirm('Khôi phục ' + imported.length + ' thẻ?\nDữ liệu hiện tại sẽ bị ghi đè.')) {
+      e.target.value = '';
+      return;
+    }
+
+    // Clear existing
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).clear();
+    await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+
+    // Import all
+    for (let i = 0; i < imported.length; i++) {
+      const card = imported[i];
+      card.order = i;
+      if (!card.id) card.id = 'card_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      await dbPut(card);
+    }
+
+    cards = imported;
+    cards.sort((a, b) => a.order - b.order);
+    currentIndex = 0;
+    renderCardList();
+    showToast('Đã khôi phục ' + imported.length + ' thẻ');
+  } catch (err) {
+    showToast('Lỗi đọc file');
+  }
+
+  e.target.value = '';
+}
+
 /* ── Keyboard nav (for testing on desktop) ── */
 document.addEventListener('keydown', e => {
   if (modalOverlay.classList.contains('open')) return;
