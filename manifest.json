@@ -1,0 +1,22 @@
+{
+  "name": "Học Hình - Từ Vựng Cho Bé",
+  "short_name": "Học Hình",
+  "description": "Ứng dụng học từ vựng tiếng Việt qua hình ảnh cho trẻ em",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e94560",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

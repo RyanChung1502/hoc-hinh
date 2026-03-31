@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#e94560">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Học Hình - Từ Vựng Cho Bé</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <h1>Học Hình</h1>
+    <button class="btn-icon" onclick="openSettings()" aria-label="Cài đặt">⚙️</button>
+  </header>
+
+  <!-- Main viewer -->
+  <div class="viewer">
+    <div class="card-container"></div>
+  </div>
+
+  <!-- Dots -->
+  <div class="dots"></div>
+
+  <!-- Settings modal -->
+  <div class="modal-overlay" onclick="if(event.target===this)closeSettings()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Quản lý thẻ</h2>
+        <button class="btn-icon" onclick="closeSettings()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Add form -->
+        <div class="add-form">
+          <h3>➕ Thêm thẻ mới</h3>
+          <div class="form-group">
+            <label>Hình ảnh</label>
+            <div class="img-upload-area" onclick="triggerImagePick()">
+              <div class="placeholder"><span>📷</span>Chạm để chọn ảnh</div>
+              <input type="file" accept="image/*" onchange="handleImageSelect(event)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nội dung (phát âm)</label>
+            <input type="text" id="input-text" placeholder="VD: Bông hoa" oninput="updateAddBtn()">
+          </div>
+          <button class="btn-add" id="btn-save-card" disabled onclick="addCard()">Thêm thẻ</button>
+        </div>
+
+        <!-- Card list -->
+        <h3 style="margin-bottom:12px;font-size:15px;color:var(--text-dim)">Danh sách thẻ</h3>
+        <div class="card-list" id="card-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
