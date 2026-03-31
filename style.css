@@ -23,14 +23,14 @@ html, body {
 /* ── Header ── */
 .header {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  bottom: 0; left: 0; right: 0;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
   z-index: 100;
-  background: linear-gradient(to bottom, rgba(26,26,46,0.95), transparent);
+  background: linear-gradient(to top, rgba(26,26,46,0.95), transparent);
 }
 
 .header h1 {
@@ -80,7 +80,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 72px 24px 100px;
+  padding: 24px 24px 120px;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s;
   will-change: transform, opacity;
   cursor: pointer;
@@ -127,7 +127,7 @@ html, body {
 /* ── Dots ── */
 .dots {
   position: fixed;
-  bottom: 32px;
+  bottom: 64px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -369,6 +369,44 @@ html, body {
 
 .btn-sm.delete { color: #ff6b6b; }
 .btn-sm:active { background: rgba(255,255,255,0.2); }
+
+/* ── Nav arrows ── */
+.nav-arrows {
+  position: fixed;
+  top: 50%;
+  left: 0; right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.btn-arrow {
+  width: 48px; height: 48px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0.6;
+}
+
+.btn-arrow:hover { background: rgba(255,255,255,0.2); opacity: 1; }
+.btn-arrow:active { background: rgba(255,255,255,0.25); }
+.btn-arrow:disabled { opacity: 0.15; cursor: default; }
+
+/* Ẩn trên mobile (dùng vuốt), hiện trên desktop */
+@media (pointer: coarse) {
+  .nav-arrows { display: none; }
+}
 
 /* ── Backup section ── */
 .backup-section {

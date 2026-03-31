@@ -65,6 +65,7 @@ async function init() {
   currentIndex = 0;
   renderViewer();
   renderDots();
+  updateArrows();
   setupSwipe();
 }
 
@@ -172,6 +173,7 @@ function animateSlide(direction) {
     currentIndex += direction === 'left' ? 1 : -1;
     renderViewer();
     renderDots();
+    updateArrows();
     // Auto speak on new card
     const newCard = cardContainer.querySelector('.card');
     if (newCard && cards[currentIndex]) {
@@ -226,6 +228,7 @@ function closeSettings() {
   modalOverlay.classList.remove('open');
   renderViewer();
   renderDots();
+  updateArrows();
 }
 
 function renderCardList() {
@@ -424,11 +427,27 @@ async function restoreData(e) {
   e.target.value = '';
 }
 
+/* ── Nav arrows ── */
+function goPrev() {
+  if (currentIndex > 0) animateSlide('right');
+}
+
+function goNext() {
+  if (currentIndex < cards.length - 1) animateSlide('left');
+}
+
+function updateArrows() {
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  if (prev) prev.disabled = currentIndex <= 0 || cards.length === 0;
+  if (next) next.disabled = currentIndex >= cards.length - 1 || cards.length === 0;
+}
+
 /* ── Keyboard nav (for testing on desktop) ── */
 document.addEventListener('keydown', e => {
   if (modalOverlay.classList.contains('open')) return;
-  if (e.key === 'ArrowLeft' && currentIndex > 0) animateSlide('right');
-  if (e.key === 'ArrowRight' && currentIndex < cards.length - 1) animateSlide('left');
+  if (e.key === 'ArrowLeft') goPrev();
+  if (e.key === 'ArrowRight') goNext();
   if (e.key === ' ') {
     e.preventDefault();
     const card = cardContainer.querySelector('.card');
