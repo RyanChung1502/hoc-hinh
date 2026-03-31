@@ -181,12 +181,30 @@ function animateSlide(direction) {
 }
 
 /* ── Speech ── */
+let viVoice = null;
+
+function findVietnameseVoice() {
+  const voices = speechSynthesis.getVoices();
+  // Ưu tiên: vi-VN exact → vi → bất kỳ voice nào có "vietnam" trong tên
+  viVoice = voices.find(v => v.lang === 'vi-VN')
+    || voices.find(v => v.lang.startsWith('vi'))
+    || voices.find(v => v.name.toLowerCase().includes('vietnam'))
+    || null;
+}
+
+// Voices load async trên một số browser
+if (window.speechSynthesis) {
+  findVietnameseVoice();
+  speechSynthesis.onvoiceschanged = findVietnameseVoice;
+}
+
 function speak(text, el) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
 
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'vi-VN';
+  if (viVoice) u.voice = viVoice;
   u.rate = 0.85;
   u.pitch = 1.1;
 
