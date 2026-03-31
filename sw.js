@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hoc-hinh-v1';
+const CACHE_NAME = 'hoc-hinh-v2';
 const ASSETS = [
   './',
   './index.html',

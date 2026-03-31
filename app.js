@@ -221,6 +221,7 @@ function speak(text, el) {
 function openSettings() {
   renderCardList();
   clearAddForm();
+  showVersion();
   modalOverlay.classList.add('open');
 }
 
@@ -455,9 +456,45 @@ document.addEventListener('keydown', e => {
   }
 });
 
+/* ── App version ── */
+const APP_VERSION = 'v2';
+
 /* ── Service Worker ── */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
+}
+
+/* ── Update ── */
+function checkUpdate() {
+  if (!('serviceWorker' in navigator)) {
+    showToast('Trình duyệt không hỗ trợ');
+    return;
+  }
+
+  showToast('Đang kiểm tra...');
+
+  navigator.serviceWorker.getRegistration().then(reg => {
+    if (!reg) {
+      showToast('Chưa cài Service Worker');
+      return;
+    }
+    reg.update().then(() => {
+      // Xóa toàn bộ cache cũ
+      caches.keys().then(keys => {
+        Promise.all(keys.map(k => caches.delete(k))).then(() => {
+          showToast('Đã cập nhật! Đang tải lại...');
+          setTimeout(() => location.reload(true), 1000);
+        });
+      });
+    }).catch(() => {
+      showToast('Lỗi cập nhật');
+    });
+  });
+}
+
+function showVersion() {
+  const el = document.getElementById('app-version');
+  if (el) el.textContent = 'Phiên bản hiện tại: ' + APP_VERSION;
 }
 
 /* ── Start ── */
