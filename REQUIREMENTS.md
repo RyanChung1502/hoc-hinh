@@ -18,6 +18,8 @@
 - [x] **Tải ảnh từ điện thoại** — Chọn ảnh từ gallery/camera, tự resize xuống 600px, lưu dạng base64 JPEG
 - [x] **Nhập nội dung phát âm** — Nhập text (VD: "Bông hoa"), phone tự đọc bằng TTS
 - [x] **Dot indicator** — Hiển thị vị trí thẻ hiện tại, tối đa 10 dots với window trượt
+- [x] **Backup/Restore** — Sao lưu toàn bộ thẻ (hình + text) ra JSON, khôi phục từ JSON (ghi đè)
+- [x] **App Update** — Nút cập nhật trong Settings, xóa cache SW và reload
 - [x] **PWA / Offline** — Cài được trên điện thoại, hoạt động hoàn toàn offline qua Service Worker
 - [x] **QR Code** — File `qrcode.png` trong source code, quét để mở app
 
@@ -50,6 +52,11 @@
 | 10 | **Dot indicator tối đa 10** | Tránh dots tràn màn hình khi có nhiều thẻ |
 | 11 | **Keyboard navigation** | Arrow keys + Space cho testing trên desktop |
 | 12 | **QR code trong source** | Dễ chia sẻ app cho người khác, in ra giấy |
+| 13 | **Backup/Restore qua JSON** | Portable, không cần server; chứa cả ảnh base64 |
+| 14 | **Nút cập nhật trong Settings** | PWA cache aggressively → user cần cách force update; tăng version mỗi lần deploy |
+| 15 | **Header đặt ở bottom** | Tránh bị che bởi notch/status bar/dynamic island trên điện thoại |
+| 16 | **Nav arrows ẩn trên mobile** | Mobile dùng vuốt (tự nhiên hơn); desktop cần nút vì không vuốt được |
+| 17 | **Chủ động chọn Vietnamese voice** | Một số browser không tự chọn vi-VN; cần tìm voice qua `getVoices()` + `onvoiceschanged` |
 
 ---
 
@@ -185,6 +192,91 @@ function speak(text) {
 }
 ```
 
+#### 9. Backup/Restore (JSON file)
+```js
+// Sao lưu — xuất toàn bộ data ra file JSON để download
+function backupData() {
+  const data = JSON.stringify(items, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'app-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Khôi phục — đọc file JSON, validate, ghi đè IndexedDB
+async function restoreData(e) {
+  const file = e.target.files[0];
+  const text = await file.text();
+  const imported = JSON.parse(text);
+  // Validate → confirm → clear DB → import all → reload UI
+}
+```
+
+#### 10. App Update (xóa cache Service Worker)
+```js
+// Trong app.js — version tracking
+const APP_VERSION = 'v2';
+
+// Nút cập nhật: xóa cache cũ → update SW → reload
+function checkUpdate() {
+  navigator.serviceWorker.getRegistration().then(reg => {
+    reg.update().then(() => {
+      caches.keys().then(keys => {
+        Promise.all(keys.map(k => caches.delete(k))).then(() => {
+          location.reload(true);
+        });
+      });
+    });
+  });
+}
+```
+**Quan trọng:** Mỗi lần update code phải tăng 2 chỗ:
+1. `CACHE_NAME` trong `sw.js` (VD: `'app-v2'` → `'app-v3'`)
+2. `APP_VERSION` trong `app.js` (VD: `'v2'` → `'v3'`)
+
+#### 11. Vietnamese Voice Selection (Web Speech API)
+```js
+// Voices load bất đồng bộ trên một số browser
+let viVoice = null;
+
+function findVietnameseVoice() {
+  const voices = speechSynthesis.getVoices();
+  viVoice = voices.find(v => v.lang === 'vi-VN')
+    || voices.find(v => v.lang.startsWith('vi'))
+    || voices.find(v => v.name.toLowerCase().includes('vietnam'))
+    || null;
+}
+
+speechSynthesis.onvoiceschanged = findVietnameseVoice;
+findVietnameseVoice(); // gọi ngay lần đầu
+
+// Khi speak, gán voice rõ ràng
+const u = new SpeechSynthesisUtterance(text);
+u.lang = 'vi-VN';
+if (viVoice) u.voice = viVoice;
+```
+**Lưu ý thiết bị:** Nếu không có giọng Việt:
+- Android: Settings → System → Language → Text-to-Speech → cài Google TTS → tải gói "Tiếng Việt"
+- iPhone: Settings → Accessibility → Spoken Content → Voices → Vietnamese
+
+#### 12. Nav Arrows cho Desktop
+```js
+// Ẩn trên mobile (dùng vuốt), hiện trên desktop
+// CSS: @media (pointer: coarse) { .nav-arrows { display: none; } }
+// Nút ◀ ▶ ở 2 bên màn hình, disabled khi ở đầu/cuối
+```
+
+#### 13. Header nên đặt ở dưới (mobile)
+```
+Trên điện thoại, vùng trên cùng bị che bởi notch / status bar / dynamic island.
+→ Đặt header (chứa nút Settings) ở bottom thay vì top.
+→ CSS: position: fixed; bottom: 0;
+→ Background gradient ngược: linear-gradient(to top, ...)
+```
+
 ---
 
 ## Build & Deploy
@@ -273,7 +365,6 @@ rm -rf node_modules package-lock.json
 ---
 
 ## Future Considerations
-- [ ] Backup/Restore — xuất/nhập thẻ ra file JSON
 - [ ] Phân loại thẻ theo chủ đề (Số, Động vật, Hoa quả, ...)
 - [ ] Chế độ quiz — hiển thị ảnh, cho bé chọn đáp án đúng
 - [ ] Âm thanh custom — ghi âm giọng bố mẹ thay vì dùng TTS
